@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToTest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* VOICE: directo y animado, como una sala de estudio con buen ambiente
+   IDEA: la hoja de respuestas de un examen tipo test, con sus burbujas para rellenar
+   PICTURE: la propia estantería de tests, bajo una cabecera amarilla de lápiz con una hoja de burbujas
+   COLOUR and TYPE: amarillo lápiz dominante, tinta casi negra, azul bolígrafo como acento; Archivo Black + Atkinson Hyperlegible
+   LAYOUT: cabecera a todo ancho, buscador y filtros, rejilla de tests; cada test en su vista con marcador fijo */
+:root{color-scheme:light dark;
+ --bg:light-dark(#ffffff,#121417);--card:light-dark(#ffffff,#1b1e23);--ink:light-dark(#16181c,#eef0f3);--soft:light-dark(#545b66,#a3abb6);
+ --line:light-dark(#dfe2e7,#2c3139);--pencil:#ffcf33;--pen:light-dark(#1f4fd1,#7ea2ff);--pendk:#1f4fd1;
+ --ok:light-dark(#18794e,#5ad39a);--okbg:light-dark(#e6f5ec,#13301f);--ko:light-dark(#b42318,#ff8a80);--kobg:light-dark(#fdecea,#3a1916);
+ --c-bach:#c8341f;--c-prog:#1f4fd1;--c-dgt:#d97706;--c-ocio:#b0157a}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 "Atkinson Hyperlegible",system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(28px,4vw,56px) max(5vw,16px)}
+h1,h2,.big{font-family:"Archivo Black",system-ui,sans-serif;font-weight:400;line-height:1.05;text-wrap:balance;margin:0}
+code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.88em;background:light-dark(#eef1f6,#262b33);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+button,input{font:inherit}
+:focus-visible{outline:3px solid var(--pen);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto}
+/* Cabecera */
+.top{background:var(--pencil);color:#16181c}
+.top .wrap{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(20px,4vw,56px);align-items:center}
+.top h1{font-size:clamp(34px,5.4vw,52px)}
+.top p{margin:12px 0 0;max-width:52ch;font-size:17px}
+.top .brand{font-size:clamp(52px,9vw,88px);letter-spacing:-.02em}
+.top .tag{font-family:"Archivo Black",sans-serif;font-size:clamp(20px,2.6vw,26px);margin:6px 0 0;line-height:1.15}
+.sheet{background:#fffdf4;border-radius:6px;box-shadow:0 10px 0 rgba(0,0,0,.12);padding:16px 18px;transform:rotate(-2deg)}
+.sheet svg{display:block;width:100%;height:auto}
+.find{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.find input{flex:1 1 260px;min-height:48px;border:2px solid #16181c;border-radius:6px;padding:10px 14px;font-size:16px;background:#fff;color:#16181c}
+/* Filtros */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+.chip{min-height:44px;padding:8px 16px;border-radius:22px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:16px}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:16px}
+.card{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:8px;padding:18px 18px 16px;transition:transform .15s,border-color .15s;min-height:190px}
+.card:hover{transform:translateY(-3px);border-color:var(--cc)}
+.card .lv{font-size:14px;font-weight:700;color:var(--cc)}
+:root[data-theme=dark] .card .lv{filter:brightness(1.6)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .card .lv{filter:brightness(1.6)}}
+.card h2{font-size:21px;line-height:1.15;margin:6px 0 6px}
+.card p{margin:0;color:var(--soft);font-size:16px;flex:1}
+.card .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:14px;font-size:15px;color:var(--soft)}
+.dots{display:flex;gap:4px}.dots b{width:12px;height:12px;border-radius:50%;border:2px solid var(--cc)}.dots b.f{background:var(--cc)}
+.best{font-weight:700;color:var(--ink);white-space:nowrap}
+.empty{color:var(--soft);padding:30px 0}
+/* Vista de test */
+.thead{background:var(--cc,#16181c);color:#fff}
+.thead a{color:#fff;text-decoration:none;display:inline-flex;align-items:center;min-height:44px;font-weight:700}
+.thead h1{font-size:clamp(28px,4.6vw,44px);margin-top:8px}
+.thead p{margin:10px 0 0;max-width:60ch;opacity:.92}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1.5px solid var(--line);display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;padding:10px max(5vw,16px)}
+.bar .sc{font-size:16px;white-space:nowrap}.bar .sc b{font-family:"Archivo Black",sans-serif;font-weight:400;font-size:20px}
+.meter{flex:1 1 140px;height:10px;background:var(--line);border-radius:6px;overflow:hidden}.meter i{display:block;height:100%;width:0;background:var(--cc);transition:width .3s}
+.mode{display:flex;gap:6px;flex-wrap:wrap}
+.mode button{min-height:40px;padding:6px 14px;border-radius:20px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:15px}
+.mode button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.qs{max-width:820px;margin:0 auto}
+.intro{color:var(--soft);margin:0 0 22px;font-size:16px}
+.q{background:var(--card);border:1.5px solid var(--line);border-radius:8px;margin:0 0 18px;padding:18px clamp(16px,3vw,26px) 20px;position:relative;scroll-margin-top:80px}
+.q header{display:flex;justify-content:space-between;gap:12px;color:var(--soft);font-size:14px;margin-bottom:8px}
+.q header strong{color:var(--ink)}
+.q h3{font-size:19px;line-height:1.35;margin:0 0 14px;padding-right:70px}
+.flag{width:min(100%,240px);aspect-ratio:3/2;border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:0 0 14px;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.flag svg{display:block;width:100%;height:100%}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:transparent;color:var(--ink);border:1.5px solid var(--line);border-radius:6px;padding:10px 14px;min-height:46px;font-size:17px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--cc)}
+.opt .l{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid currentColor;display:grid;place-items:center;font-size:13px;font-weight:700}
+.opt.sel{border-color:var(--pen)}.opt.sel .l{background:var(--pen);border-color:var(--pen);color:#fff}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}.opt.ok .l{background:var(--ok);border-color:var(--ok);color:var(--card)}
+.opt.ko{border-color:var(--ko);background:var(--kobg)}.opt.ko .l{background:var(--ko);border-color:var(--ko);color:var(--card)}
+.opt:disabled{cursor:default}
+.hint{background:none;border:0;color:var(--pen);text-decoration:underline;cursor:pointer;padding:10px 0 0;min-height:40px;font-size:15px}
+.hinttxt{font-style:italic;color:var(--soft);margin:4px 0 0;font-size:16px}
+.fb{margin-top:14px;padding:12px 14px;border-left:4px solid;font-size:16px;border-radius:0 6px 6px 0}
+.fb.ok{border-color:var(--ok);background:var(--okbg)}.fb.ko{border-color:var(--ko);background:var(--kobg)}.fb b{display:block}
+.stamp{position:absolute;top:14px;right:16px;transform:rotate(-8deg);font-family:"Archivo Black",sans-serif;font-size:14px;padding:2px 9px;border:2px solid;border-radius:4px}
+.stamp.ok{color:var(--ok)}.stamp.ko{color:var(--ko)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin:6px 0 28px}
+.btn{min-height:48px;padding:12px 22px;border-radius:6px;border:0;background:var(--ink);color:var(--bg);font-weight:700;cursor:pointer;font-size:17px;text-decoration:none;display:inline-flex;align-items:center}
+.btn.alt{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.result{display:none;background:var(--pencil);color:#16181c;border-radius:8px;padding:26px clamp(18px,4vw,34px);margin:0 0 40px}
+.result.show{display:block}.result .big{font-size:clamp(44px,9vw,70px)}
+.result p{margin:.4em 0 0;max-width:60ch}.result ul{margin:12px 0 0;padding-left:20px}.result a{color:#16181c;font-weight:700}
+.result .actions{margin:18px 0 0}.result .btn{background:#16181c;color:#fff}.result .btn.alt{color:#16181c;border-color:#16181c}
+footer{color:var(--soft);font-size:14px;text-align:center;padding:16px 16px 40px}
+.err{padding:30px;color:var(--ko)}
+@media(max-width:760px){.top .wrap{grid-template-columns:minmax(0,1fr)}.sheet{max-width:420px}}
+@media(max-width:600px){.q h3{font-size:18px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<footer>ToTest · Tests de práctica, gratis y sin registro. Las explicaciones ayudan a aprender de cada fallo.</footer>
+<script>
+{
+const CATS={bach:["2.º Bachillerato","var(--c-bach)"],prog:["Programación","var(--c-prog)"],dgt:["Carnet de conducir","var(--c-dgt)"],ocio:["Cultura y ocio","var(--c-ocio)"]};
+const L="ABCD",app=document.getElementById("app");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const rich=s=>esc(s).replace(/`([^`]+)`/g,"<code>$1</code>");
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const cache={};let manifest=null,filt="all",query="";
+
+function flag(spec){
+ const W=300,H=200;let b="";
+ if(spec==="ch")return `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet"><rect width="200" height="200" fill="#da291c"/><rect x="82" y="40" width="36" height="120" fill="#fff"/><rect x="40" y="82" width="120" height="36" fill="#fff"/></svg>`;
+ const [t,rest]=spec.split(":"),p=rest.split(",");
+ if(t==="h"||t==="v"){const parts=p.map(x=>{const[c,w]=x.split("*");return[c,+(w||1)]}),tot=parts.reduce((s,x)=>s+x[1],0);let o=0;
+  for(const[c,w]of parts){const s=(t==="h"?H:W)*w/tot;b+=t==="h"?`<rect x="0" y="${o}" width="${W}" height="${s+.5}" fill="${c}"/>`:`<rect x="${o}" y="0" width="${s+.5}" height="${H}" fill="${c}"/>`;o+=s}}
+ else if(t==="disc"){b=`<rect width="${W}" height="${H}" fill="${p[0]}"/><circle cx="${W*p[2]/100}" cy="${H/2}" r="${H*.3}" fill="${p[1]}"/>`}
+ else if(t==="n"){b=`<rect width="${W}" height="${H}" fill="${p[0]}"/><rect x="84" y="0" width="${p[2]?44:32}" height="${H}" fill="${p[1]}"/><rect x="0" y="${p[2]?78:84}" width="${W}" height="${p[2]?44:32}" fill="${p[1]}"/>`+(p[2]?`<rect x="95" y="0" width="22" height="${H}" fill="${p[2]}"/><rect x="0" y="89" width="${W}" height="22" fill="${p[2]}"/>`:"")}
+ return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${b}</svg>`;
+}
+
+function sheetSVG(){
+ const rows=[1,3,0,2,1,3];let s="";
+ rows.forEach((f,r)=>{s+=`<text x="4" y="${30+r*30}" font-family="Atkinson Hyperlegible,sans-serif" font-size="15" fill="#545b66">${r+1}</text>`;
+  for(let c=0;c<4;c++){const x=46+c*52,y=25+r*30,on=c===f;s+=`<circle cx="${x}" cy="${y}" r="10" fill="${on?"#1f4fd1":"none"}" stroke="${on?"#1f4fd1":"#9aa1ab"}" stroke-width="2"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="10" font-family="sans-serif" fill="${on?"#fff":"#9aa1ab"}">${L[c]}</text>`}});
+ return `<svg viewBox="0 0 270 200" role="img" aria-label="Hoja de respuestas con burbujas rellenadas"><text x="4" y="8" font-family="Archivo Black,sans-serif" font-size="12" fill="#16181c">HOJA DE RESPUESTAS</text>${s}<path d="M232 182 l26 -150" stroke="#e0a800" stroke-width="12" stroke-linecap="round"/><path d="M232 182 l4 -22" stroke="#16181c" stroke-width="5" stroke-linecap="round"/></svg>`;
+}
+
+/* ---------- Portada ---------- */
+function hub(){
+ document.title="ToTest · Tests para practicar";
+ app.innerHTML=`<header class="top band"><div class="wrap"><div>
+  <h1 class="brand">ToTest</h1><p class="tag">Tests para practicar de todo</p>
+  <p>Bachillerato, programación, el teórico del carnet o «cuánto sabes de…». Elige un test, responde y se corrige solo, con la explicación de cada pregunta.</p>
+  <div class="find"><input id="q" type="search" placeholder="Busca un tema: Python, banderas, DGT…" aria-label="Buscar test" value="${esc(query)}"></div>
+ </div><div class="sheet" aria-hidden="true">${sheetSVG()}</div></div></header>
+ <main class="band"><div class="wrap"><div class="chips" role="group" aria-label="Categorías">
+  ${[["all","Todos",""],...Object.entries(CATS).map(([k,v])=>[k,v[0],v[1]])].map(([k,n,c])=>`<button type="button" class="chip" data-c="${k}" aria-pressed="${filt===k}">${c?`<i style="background:${c}"></i>`:""}${n}</button>`).join("")}
+ </div><div class="grid" id="grid"></div></div></main>`;
+ const g=document.getElementById("grid");
+ const draw=()=>{const qq=query.trim().toLowerCase();
+  const list=manifest.filter(t=>(filt==="all"||t.cat===filt)&&(!qq||(t.title+" "+t.level+" "+t.desc+" "+CATS[t.cat][0]).toLowerCase().includes(qq)));
+  g.innerHTML=list.length?list.map(t=>{const best=store.get("best:"+t.id),c=CATS[t.cat][1];
+   return `<a class="card" href="#t-${t.id}" style="--cc:${c}"><span class="lv">${esc(t.level)}</span><h2>${esc(t.title)}</h2><p>${esc(t.desc)}</p>
+   <div class="meta"><span>${t.n} preguntas</span>${best?`<span class="best">Mejor: ${best.s}/${t.n}</span>`:`<span class="dots" aria-hidden="true"><b class="f"></b><b></b><b></b></span>`}</div></a>`}).join(""):`<p class="empty">No hay tests sobre «${esc(query)}» todavía.</p>`};
+ draw();
+ document.getElementById("q").addEventListener("input",e=>{query=e.target.value;draw()});
+ app.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{filt=b.dataset.c;app.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===b));draw()}));
+}
+
+/* ---------- Test ---------- */
+function runTest(T){
+ const c=CATS[T.cat][1],N=T.q.length,dgt=T.rule==="dgt";
+ let mode="inst",order,ans,graded;
+ document.title=T.title+" · ToTest";
+ app.style.setProperty("--cc",c);
+ app.innerHTML=`<header class="thead band" style="--cc:${c}"><div class="wrap qs">
+  <a href="#">← ToTest · Todos los tests</a><h1>${esc(T.title)}</h1><p>${esc(T.level)} · ${N} preguntas. ${esc(T.desc)}</p></div></header>
+ <div class="bar" role="status" aria-live="polite"><span class="sc"><b id="s">0</b> aciertos · <span id="d">0</span>/${N}</span>
+  <div class="meter" aria-hidden="true"><i id="m"></i></div>
+  <div class="mode" role="group" aria-label="Modo de corrección"><button type="button" id="mi" aria-pressed="true">Corregir al momento</button><button type="button" id="me" aria-pressed="false">${dgt?"Simulacro de examen":"Corregir al final"}</button></div></div>
+ <main class="band"><div class="qs"><p class="intro" id="intro"></p><div id="list"></div>
+  <div class="actions"><button type="button" class="btn" id="grade" hidden>Corregir examen</button><button type="button" class="btn alt" id="reset">Empezar de nuevo</button></div>
+  <section class="result" id="res" aria-live="polite"></section></div></main>`;
+ const $=id=>document.getElementById(id);
+ function build(){
+  order=T.q.map(()=>shuffle([0,1,2,3]));ans=T.q.map(()=>null);graded=false;
+  $("intro").textContent=mode==="inst"?"Cada respuesta se corrige en cuanto la eliges, con su explicación.":dgt?"Como en el examen de la DGT: responde todo y corrige al final. Apruebas con 3 fallos como máximo.":"Responde todo como en un examen. Puedes cambiar respuestas hasta pulsar «Corregir examen».";
+  $("list").innerHTML=T.q.map((q,i)=>{const x=q[4],tag=typeof x==="string"?x:"",fl=x&&x.flag;
+   return `<article class="q" id="q${i}"><header><strong>Pregunta ${i+1}</strong><span>${esc(tag)}</span></header>
+   <h3>${rich(q[0])}</h3>${fl?`<div class="flag" ${fl==="ch"?`style="aspect-ratio:1;width:160px"`:""} role="img" aria-label="Bandera de la pregunta ${i+1}">${flag(fl)}</div>`:""}
+   <div class="opts">${order[i].map((o,k)=>`<button type="button" class="opt" data-q="${i}" data-o="${o}"><span class="l">${L[k]}</span><span>${rich(q[1][o])}</span></button>`).join("")}</div>
+   <button type="button" class="hint" data-h="${i}">Ver pista</button><p class="hinttxt" id="h${i}" hidden>${rich(q[2])}</p><div id="f${i}"></div></article>`}).join("");
+  $("res").className="result";$("res").innerHTML="";update();
+ }
+ function reveal(i){
+  const card=$("q"+i),right=ans[i]===0,q=T.q[i];
+  card.querySelectorAll(".opt").forEach(b=>{const o=+b.dataset.o;b.disabled=true;b.classList.remove("sel");if(o===0)b.classList.add("ok");else if(o===ans[i])b.classList.add("ko")});
+  card.querySelector(".hint").hidden=true;$("h"+i).hidden=true;
+  $("f"+i).innerHTML=`<div class="fb ${right?"ok":"ko"}"><b>${ans[i]===null?"Sin responder. Era: "+rich(q[1][0]):right?"¡Correcto!":"Incorrecto. Era: "+rich(q[1][0])}</b>${rich(q[3])}</div>`;
+  card.insertAdjacentHTML("beforeend",`<span class="stamp ${right?"ok":"ko"}">${right?"Bien":"Fallo"}</span>`);
+ }
+ function update(){
+  const done=ans.filter(a=>a!==null).length,shown=mode==="inst"||graded,sc=ans.filter(a=>a===0).length;
+  $("s").textContent=shown?sc:"–";$("d").textContent=done;$("m").style.width=(done/N*100)+"%";
+  $("grade").hidden=mode!=="end"||graded;$("grade").disabled=done===0;
+  if(shown&&done===N&&!$("res").classList.contains("show"))final();
+ }
+ function final(){
+  const sc=ans.filter(a=>a===0).length,fails=N-sc;
+  const prev=store.get("best:"+T.id);if(!prev||sc>prev.s)store.set("best:"+T.id,{s:sc});
+  let big,msg;
+  if(dgt){const ok=fails<=3;big=ok?"APTO":"NO APTO";msg=`${fails} fallo${fails===1?"":"s"} de ${N}. ${ok?"Con este resultado aprobarías el teórico.":"En el examen real solo se permiten 3 fallos. Repasa y vuelve a intentarlo."}`}
+  else{const n=Math.round(sc/N*100)/10;big=String(n).replace(".",",")+" / 10";const r=sc/N;msg=`${sc} aciertos de ${N}. `+(r>=.9?"Impecable.":r>=.7?"Muy bien, ya casi lo tienes.":r>=.5?"Aprobado. Repasa los fallos para afianzarlo.":"Toca repasar. Lee las explicaciones y vuelve a intentarlo.")}
+  const fl=T.q.map((q,i)=>ans[i]!==0?`<li><a href="#" data-go="${i}">Pregunta ${i+1}</a>: ${rich(q[1][0])}</li>`:"").join("");
+  $("res").innerHTML=`<div class="big">${big}</div><p>${msg}</p>${fl?`<p>Para repasar:</p><ul>${fl}</ul>`:""}<div class="actions"><button type="button" class="btn" data-again>Repetir test</button><a class="btn alt" href="#">Elegir otro test</a></div>`;
+  $("res").classList.add("show");
+  $("res").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+ }
+ $("list").addEventListener("click",e=>{
+  const h=e.target.closest(".hint");if(h){const p=$("h"+h.dataset.h);p.hidden=!p.hidden;h.textContent=p.hidden?"Ver pista":"Ocultar pista";return}
+  const b=e.target.closest(".opt");if(!b||b.disabled||graded)return;
+  const i=+b.dataset.q;ans[i]=+b.dataset.o;
+  if(mode==="inst")reveal(i);else b.parentNode.querySelectorAll(".opt").forEach(x=>x.classList.toggle("sel",x===b));
+  update();
+ });
+ $("res").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g){e.preventDefault();$("q"+g.dataset.go).scrollIntoView({block:"start"})}
+  if(e.target.closest("[data-again]")){build();window.scrollTo({top:0})}});
+ $("grade").addEventListener("click",()=>{graded=true;T.q.forEach((_,i)=>reveal(i));update();if(!$("res").classList.contains("show"))final()});
+ $("reset").addEventListener("click",()=>{build();window.scrollTo({top:0})});
+ const setMode=m=>{if(m===mode)return;mode=m;$("mi").setAttribute("aria-pressed",m==="inst");$("me").setAttribute("aria-pressed",m==="end");build()};
+ $("mi").addEventListener("click",()=>setMode("inst"));$("me").addEventListener("click",()=>setMode("end"));
+ build();window.scrollTo({top:0});
+}
+
+async function route(){
+ const h=location.hash.slice(1);
+ try{
+  if(!manifest)manifest=await (await fetch("manifest.json")).json();
+  if(h.startsWith("t-")){const id=h.slice(2);if(!manifest.some(t=>t.id===id))return hub();
+   if(!cache[id])cache[id]=await (await fetch("tests/"+id+".json")).json();
+   runTest(cache[id]);}
+  else{app.style.removeProperty("--cc");hub()}
+ }catch(e){app.innerHTML=`<p class="err">No se han podido cargar los tests. Recarga la página.</p>`}
+}
+addEventListener("hashchange",route);
+route();
+}
+</script>
+</body>
+</html>

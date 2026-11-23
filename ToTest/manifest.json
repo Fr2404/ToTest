@@ -1,0 +1,74 @@
+[
+{
+"id": "guerra-cuba",
+"title": "La Guerra de Cuba y el Desastre del 98",
+"cat": "bach",
+"level": "2.º Bachillerato · Historia de España",
+"desc": "De la Guerra de los Diez Años al Tratado de París.",
+"n": 20,
+"rule": "nota"
+},
+{
+"id": "guerra-civil",
+"title": "La Guerra Civil española (1936-1939)",
+"cat": "bach",
+"level": "2.º Bachillerato · Historia de España",
+"desc": "Del golpe de julio de 1936 al último parte de guerra.",
+"n": 20,
+"rule": "nota"
+},
+{
+"id": "python-basico",
+"title": "Python: fundamentos",
+"cat": "prog",
+"level": "Programación · Nivel inicial",
+"desc": "Tipos, operadores, listas, funciones y errores típicos.",
+"n": 20,
+"rule": "nota"
+},
+{
+"id": "sql-basico",
+"title": "SQL y bases de datos",
+"cat": "prog",
+"level": "Programación · Bases de datos",
+"desc": "Consultas, joins, claves, agregados y transacciones.",
+"n": 20,
+"rule": "nota"
+},
+{
+"id": "dgt-permiso-b",
+"title": "Teórico DGT · Permiso B",
+"cat": "dgt",
+"level": "Carnet de conducir · 30 preguntas",
+"desc": "Como el examen real: apruebas con 3 fallos como máximo.",
+"n": 30,
+"rule": "dgt"
+},
+{
+"id": "banderas",
+"title": "¿Cuánto sabes de banderas?",
+"cat": "ocio",
+"level": "Ocio · Geografía",
+"desc": "15 banderas, algunas con trampa.",
+"n": 15,
+"rule": "nota"
+},
+{
+"id": "cine",
+"title": "¿Cuánto sabes de cine?",
+"cat": "ocio",
+"level": "Ocio · Cine",
+"desc": "Directores, Oscar y clásicos.",
+"n": 15,
+"rule": "nota"
+},
+{
+"id": "videojuegos",
+"title": "¿Cuánto sabes de videojuegos?",
+"cat": "ocio",
+"level": "Ocio · Videojuegos",
+"desc": "Clásicos, estudios y curiosidades.",
+"n": 15,
+"rule": "nota"
+}
+]
